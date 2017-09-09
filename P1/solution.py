@@ -46,15 +46,17 @@ def naked_twins(values):
     for unit in unitlist:
         # Find instances of naked twins inside a unit
         naked_values = ""
+        naked_boxes = []
         for i, box1 in enumerate(unit):
             for box2 in unit[i+1:]:
                 if len(values[box1])==2 and values[box1] == values[box2] and box1 != box2:
                     naked_values += values[box1]
+                    naked_boxes += [box1, box2]
         
         # If there are some, delete values from their peers
         if len(naked_values) > 0:
             for box in unit:
-                if len(values[box]) > 2:
+                if box not in naked_boxes:
                     new_val = "".join([x for x in values[box] if x not in naked_values])
                     assign_value(values, box, new_val)
 
