@@ -12,7 +12,10 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 
-unitlist = row_units + column_units + square_units
+diagonals = [[row + col for row, col in zip(rows, cols)], 
+            [row + col for row, col in zip(rows, reversed(cols))]]
+
+unitlist = row_units + column_units + square_units + diagonals
 
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)
@@ -40,9 +43,22 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
+    for unit in unitlist:
+        # Find instances of naked twins inside a unit
+        naked_values = ""
+        for i, box1 in enumerate(unit):
+            for box2 in unit[i+1:]:
+                if len(values[box1])==2 and values[box1] == values[box2] and box1 != box2:
+                    naked_values += values[box1]
+        
+        # If there are some, delete values from their peers
+        if len(naked_values) > 0:
+            for box in unit:
+                if len(values[box]) > 2:
+                    new_val = "".join([x for x in values[box] if x not in naked_values])
+                    assign_value(values, box, new_val)
 
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    return values
 
 def grid_values(grid):
     """
@@ -54,7 +70,7 @@ def grid_values(grid):
             Keys: The boxes, e.g., 'A1'
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
-    return dict(zip(boxes, [x if x != "." else cols for x in grid]))
+    return dict(zip(boxes, [x if x != "." else '123456789' for x in grid]))
 
 def display(values):
     """
@@ -67,7 +83,6 @@ def display(values):
     for r in rows:
         print(''.join(values[r + c].center(width) + ('|' if c in '36' else '') for c in cols))
         if r in 'CF': print(line)
-    return
 
 def eliminate(values):
     """Eliminate values from peers of each box with a single value.
@@ -98,7 +113,7 @@ def only_choice(values):
     Output: Resulting Sudoku in dictionary form after filling in only choices.
     """
     for unit in unitlist:
-        for value in cols:
+        for value in '123456789':
             box_list = [box for box in unit if value in values[box]]
             
             if len(box_list) == 1:
@@ -118,8 +133,11 @@ def reduce_puzzle(values):
     stalled = False
     while not stalled:
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
+
         values = eliminate(values)
         values = only_choice(values)
+        values = naked_twins(values)
+
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
@@ -135,8 +153,7 @@ def search(values):
         
     if all(len(values[box]) == 1 for box in boxes): 
         return values ## Solved!
-        
-    # Now use recursion to solve each one of the resulting sudokus, and if one returns a value (not False), return that answer!
+
     num, box = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
     
     for value in values[box]:
@@ -147,7 +164,7 @@ def search(values):
         if solution:
             return solution
 
-def solve(grid, diagonal=True):
+def solve(grid):
     """
     Find the solution to a Sudoku grid.
     Args:
@@ -156,8 +173,15 @@ def solve(grid, diagonal=True):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
+    from time import time
+    t0 = time()
+
     values = grid_values(grid)
-    return search(values)
+    solution = search(values)
+
+    #print(time() - t0)
+
+    return solution
 
 
 
