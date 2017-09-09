@@ -70,7 +70,7 @@ def grid_values(grid):
             Keys: The boxes, e.g., 'A1'
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
-    return dict(zip(boxes, [x if x != "." else '123456789' for x in grid]))
+    return dict(zip(boxes, [x if x in '123456789' else '123456789' for x in grid]))
 
 def display(values):
     """
@@ -187,6 +187,9 @@ def solve(grid):
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+
+    # hard sudoku from norvig (fun to watch)
+    #diag_sudoku_grid = '.....6....59.....82....8....45........3........6..3.54...325..6..................'
     display(solve(diag_sudoku_grid))
 
     try:
