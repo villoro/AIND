@@ -186,17 +186,17 @@ class MinimaxPlayer(IsolationPlayer):
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
                 for depth in range(self.search_depth):
-                    score, move = minimax(self, game, depth)
+                    score, move = self.minimax(game, depth)
                     
                 # Return the best move from the last completed search iteration
                 return move
 
             except SearchTimeout:
-                # No need to do something
+                # If no valid move, give the first legal move
                 if move != (-1,-1):
                     return move
                 
-                return legal_moves[0]
+                return game.get_legal_moves()[0]
 
         # First move is adviced to be in the center
         cente_position = tuple(int(x/2) for x in [game.width, game.height])
@@ -236,7 +236,7 @@ class MinimaxPlayer(IsolationPlayer):
         -------
         float
             The score
-            
+
         (int, int)
             The board coordinates of the best move found in the current search;
             (-1, -1) if there are no legal moves
@@ -256,10 +256,10 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         if depth == 0:
-            return self.score(game, self)
+            return self.score(game, self), game.get_player_location(self)
 
         if len(game.get_legal_moves()) == 0:
-            return self.score
+            return self.score(game, self), (-1, -1)
 
         best_move = (-1, -1)
 
