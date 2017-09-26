@@ -189,13 +189,19 @@ class MinimaxPlayer(IsolationPlayer):
             for i in range(self.search_depth):
 
                 best_move = minimax(self, game, i)
+                
+            # Return the best move from the last completed search iteration
+            return best_move
 
         except SearchTimeout:
             # No need to do something
-            pass
+            if best_move != (-1,-1):
+                return best_move
+            else:
+                return legal_moves[0]
 
-        # Return the best move from the last completed search iteration
-        return best_move
+        
+        
 
     def terminal_test(self, game):
         if self.time_left() < self.TIMER_THRESHOLD:
@@ -221,7 +227,7 @@ class MinimaxPlayer(IsolationPlayer):
             
         return v
 
-    def max_value(game, depth):
+    def max_value(self, game, depth):
 
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
