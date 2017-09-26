@@ -201,14 +201,18 @@ class MinimaxPlayer(IsolationPlayer):
         # First move is adviced to be in the center
         cente_position = tuple(int(x/2) for x in [game.width, game.height])
 
-        if game.move_count == 0:
+        elif game.move_count == 0:
             return cente_position
 
-        # If game.move_count == 1 (no need for the else)
-        if cente_position in game.get_legal_moves():
-            return cente_position
+        elif game.move_count == 1:
+            if cente_position in game.get_legal_moves():
+                return cente_position
 
-        return (int(game.width/2), int(game.height/2) + 1)
+            return (int(game.width/2), int(game.height/2) + 1)
+
+        # In case there is some error return a valid move
+        return game.get_legal_moves()[0]
+
 
     def minimax(self, game, depth, maximize=True):
         """Implement depth-limited minimax search algorithm as described in
@@ -255,9 +259,11 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        # No depth no exploration
         if depth == 0:
             return self.score(game, self), game.get_player_location(self)
 
+        # Early exit when no legal moves
         if len(game.get_legal_moves()) == 0:
             return self.score(game, self), (-1, -1)
 
@@ -270,7 +276,7 @@ class MinimaxPlayer(IsolationPlayer):
                 v, _ = self.minimax(game.forecast_move(move), depth - 1, maximize=False)
 
                 if v > best_score:
-                    best_score, best_move= v, move
+                    best_score, best_move = v, move
 
         else:
             best_score = float("inf")
@@ -278,8 +284,8 @@ class MinimaxPlayer(IsolationPlayer):
             for move in game.get_legal_moves():  
                 v, _ = self.minimax(game.forecast_move(move), depth - 1)
 
-                if v > best_score:
-                    best_score, best_move= v, move
+                if v < best_score:
+                    best_score, best_move = v, move
 
         return best_score, best_move
                 
