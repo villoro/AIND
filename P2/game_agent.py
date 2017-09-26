@@ -177,75 +177,40 @@ class MinimaxPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # Initialize the best move so that this function returns something
-        # in case the search fails due to timeout
-        best_move = (-1, -1)
+        if game.move_count > 1:
+            # Initialize the best move so that this function returns something
+            # in case the search fails due to timeout
+            move = (-1, -1)
 
-        try:
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            try:
+                # The try/except block will automatically catch the exception
+                # raised when the timer is about to expire.
+                for depth in range(self.search_depth):
+                    score, move = minimax(self, game, depth)
+                    
+                # Return the best move from the last completed search iteration
+                return move
 
-            for i in range(self.search_depth):
-
-                best_move = minimax(self, game, i)
+            except SearchTimeout:
+                # No need to do something
+                if move != (-1,-1):
+                    return move
                 
-            # Return the best move from the last completed search iteration
-            return best_move
-
-        except SearchTimeout:
-            # No need to do something
-            if best_move != (-1,-1):
-                return best_move
-            else:
                 return legal_moves[0]
 
-        
-        
+        # First move is adviced to be in the center
+        cente_position = tuple(int(x/2) for x in [game.width, game.height])
 
-    def terminal_test(self, game):
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
+        if game.move_count == 0:
+            return cente_position
 
-        return not bool(game.get_legal_moves())
+        # If game.move_count == 1 (no need for the else)
+        if cente_position in game.get_legal_moves():
+            return cente_position
 
-    def min_value(self, game, depth):
+        return (int(game.width/2), int(game.height/2) + 1)
 
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-        
-        if self.terminal_test(game):
-            return float("inf")
-        
-        if depth == 0:
-            return self.score(game, game.get_opponent(game.active_player))
-            
-        v = float("inf")
-        
-        for move in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(move), depth - 1))
-            
-        return v
-
-    def max_value(self, game, depth):
-
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        if self.terminal_test(game):
-            return float("-inf")
-        
-        if depth == 0:
-            return self.score(game, game.get_opponent(game.active_player))
-        
-        v = float("-inf")
-        
-        for move in game.get_legal_moves():  
-            v = max(v, self.min_value(game.forecast_move(move), depth - 1))
-            
-        return v
-
-    def minimax(self, game, depth):
+    def minimax(self, game, depth, maximize=True):
         """Implement depth-limited minimax search algorithm as described in
         the lectures.
 
@@ -269,6 +234,9 @@ class MinimaxPlayer(IsolationPlayer):
 
         Returns
         -------
+        float
+            The score
+            
         (int, int)
             The board coordinates of the best move found in the current search;
             (-1, -1) if there are no legal moves
@@ -287,20 +255,35 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        best_score = float("-inf")
-        best_move = None
+        if depth == 0:
+            return self.score(game, self)
 
-        for move in game.get_legal_moves(game.active_player):
+        if len(game.get_legal_moves()) == 0:
+            return self.score
 
-            v = self.min_value(game.forecast_move(move), depth)
+        best_move = (-1, -1)
 
-            if v > best_score:
-                best_score = v
-                best_move = move
+        if maximize:
+            best_score = float("-inf")
+
+            for move in game.get_legal_moves():  
+                v, _ = self.minimax(game.forecast_move(move), depth - 1, maximize=False)
+
+                if v > best_score:
+                    best_score, best_move= v, move
+
+        else:
+            best_score = float("inf")
+
+            for move in game.get_legal_moves():  
+                v, _ = self.minimax(game.forecast_move(move), depth - 1)
+
+                if v > best_score:
+                    best_score, best_move= v, move
+
+        return best_score, best_move
                 
-        return best_move
-
-
+        
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
