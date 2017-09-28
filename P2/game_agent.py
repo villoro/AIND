@@ -186,26 +186,24 @@ class MinimaxPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
+        # No legal move scape
+        if len(game.get_legal_moves()) == 0:
+            return 
+
         if game.move_count > 1:
-            # Initialize the best move so that this function returns something
-            # in case the search fails due to timeout
             move = (-1, -1)
 
+            # Try to explore as deep as possible
             try:
-                # The try/except block will automatically catch the exception
-                # raised when the timer is about to expire.
                 for depth in range(self.search_depth):
                     score, move = self.minimax(game, depth)
-                    
-                # Return the best move from the last completed search iteration
-                return move
 
             except SearchTimeout:
-                # If no valid move, give the first legal move
-                if move != (-1,-1):
-                    return move
+                pass
                 
-                return game.get_legal_moves()[0]
+            # If move is possible return it (it is the best guess)
+            if move in game.get_legal_moves():
+                return move
 
         # First move is adviced to be in the center
         cente_position = tuple(int(x/2) for x in [game.width, game.height])
@@ -340,26 +338,26 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
+        # No legal move scape
+        if len(game.get_legal_moves()) == 0:
+            return 
+
         if game.move_count > 1:
             # Initialize the best move so that this function returns something
             # in case the search fails due to timeout
             move = (-1, -1)
 
+            # Try to explore as deep as possible
             try:
-                # The try/except block will automatically catch the exception
-                # raised when the timer is about to expire.
                 for depth in range(self.search_depth):
                     score, move = self.alphabeta(game, depth)
                     
-                # Return the best move from the last completed search iteration
-                return move
-
             except SearchTimeout:
-                # If no valid move, give the first legal move
-                if move != (-1,-1):
-                    return move
+                pass
                 
-                return game.get_legal_moves()[0]
+            # If move is possible return it (it is the best guess)
+            if move in game.get_legal_moves():
+                return move
 
         # First move is adviced to be in the center
         cente_position = tuple(int(x/2) for x in [game.width, game.height])
@@ -374,7 +372,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             return (int(game.width/2), int(game.height/2) + 1)
 
-        # In case there is some error return a valid move
+        # When there is no possible move guessed try the first legal move
         return game.get_legal_moves()[0]
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximize=True):
