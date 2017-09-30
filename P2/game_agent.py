@@ -41,12 +41,15 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    game_percent_rem = 1 - len(game.get_blank_spaces()) / (game.width*game.height)
+    game_percent_rem = 1 - game.move_count/(game.width*game.height)
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-    return float(own_moves - (1 + game_percent_rem)*opp_moves)
+    if game_percent_rem < 0.5:
+        return float(own_moves - opp_moves)
+
+    return float(own_moves - 0.5*opp_moves)
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -77,21 +80,27 @@ def custom_score_2(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    corners = [(0, 0),
-               (0, (game.width - 1)),
-               ((game.height - 1), 0),
-               ((game.height - 1), (game.width - 1))]
-
-    own_mov_in_corners = [m for m in game.get_legal_moves(player) if m in corners]
-    opp_mov_in_corners = [m for m in game.get_legal_moves(game.get_opponent(player)) if m in corners]
-
-    game_percent_rem = 1 - len(game.get_blank_spaces()) / (game.width*game.height)
+    game_percent_rem = 1 - game.move_count/(game.width*game.height)
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-    return float(own_moves - (1 + 4*game_percent_rem)*opp_moves) \
-                + (len(own_mov_in_corners) - len(opp_mov_in_corners))
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+
+    if game_percent_rem < 0.75:
+        return  10*float(own_moves - opp_moves) + \
+                    float((h - y)**2 + (w - x)**2)
+
+    corners = [(0, 0), (0, (game.width - 1)),
+               ((game.height - 1), 0), ((game.height - 1), (game.width - 1))]
+
+    own_mov_in_corners = [m for m in game.get_legal_moves(player) if m in corners]
+    opp_mov_in_corners = [m for m in game.get_legal_moves(game.get_opponent(player)) if m in corners]
+
+    return 10*float(own_moves - opp_moves) + \
+                float((h - y)**2 + (w - x)**2) + \
+                (len(own_mov_in_corners) - len(opp_mov_in_corners))
 
 
 def custom_score_3(game, player):
@@ -129,7 +138,8 @@ def custom_score_3(game, player):
     w, h = game.width / 2., game.height / 2.
     y, x = game.get_player_location(player)
 
-    return float((h - y)**2 + (w - x)**2) + 10*float(own_moves - 2*opp_moves)
+    return 10*float(own_moves - opp_moves) + \
+                float((h - y)**2 + (w - x)**2)
 
 
 class IsolationPlayer:
