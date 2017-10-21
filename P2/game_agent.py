@@ -49,8 +49,7 @@ def custom_score(game, player):
     y, x = game.get_player_location(player)
 
     if game_percent_rem < 0.75:
-        return  10*float(own_moves - opp_moves) + \
-                    float((h - y)**2 + (w - x)**2)
+        return  10*float(own_moves - opp_moves) + float((h - y)**2 + (w - x)**2)
 
     corners = [(0, 0), (0, (game.width - 1)),
                ((game.height - 1), 0), ((game.height - 1), (game.width - 1))]
