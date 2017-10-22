@@ -212,7 +212,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         # No legal move scape
         if len(game.get_legal_moves()) == 0:
-            return 
+            return (-1, -1)
 
         if game.move_count > 1:
             move = (-1, -1)
@@ -364,7 +364,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # No legal move scape
         if len(game.get_legal_moves()) == 0:
-            return 
+            return (-1, -1) 
 
         if game.move_count > 1:
             # Initialize the best move so that this function returns something
