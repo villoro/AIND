@@ -437,9 +437,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             if v > best_score:
                 best_score, best_move = v, move
 
-            # If possible escape the "for" loop
-            if v >= beta:
-                return best_move
             alpha = max(alpha, v) 
 
         return best_move
