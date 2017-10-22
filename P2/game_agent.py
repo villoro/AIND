@@ -429,14 +429,17 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_score, best_move = float("-inf"), (-1, -1)
         alpha, beta = float("-inf"), float("inf")
 
+        if depth <= 0:
+            return best_move
+
         for move in game.get_legal_moves():
             v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
             if v > best_score:
                 best_score, best_move = v, move
 
-                # If possible escape the "for" loop
-                if v <= alpha:
-                    return best_move
-                beta = min(beta, v)
+            # If possible escape the "for" loop
+            if v >= beta:
+                return best_move
+            alpha = max(alpha, v) 
 
         return best_move
