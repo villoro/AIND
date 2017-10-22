@@ -253,8 +253,8 @@ class MinimaxPlayer(IsolationPlayer):
             return self.score(game, self)
 
         v = float("inf")
-        for m in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(m), depth - 1))
+        for move in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1))
         return v
 
     def minimax(self, game, depth):
@@ -386,8 +386,8 @@ class AlphaBetaPlayer(IsolationPlayer):
             return self.score(game, self)
 
         v = float("inf")
-        for m in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(m), depth - 1, alpha, beta))
+        for move in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1, alpha, beta))
 
             # If possible escape the "for" loop
             if v <= alpha:
