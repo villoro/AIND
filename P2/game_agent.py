@@ -367,9 +367,11 @@ class AlphaBetaPlayer(IsolationPlayer):
             v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
 
             # If possible escape the "for" loop
-            alpha = max(alpha, v)
-            if beta <= alpha:
+            if v >= beta:
                 break
+
+            alpha = max(alpha, v)
+
         return v
 
     def min_value(self, game, depth, alpha, beta):
@@ -387,9 +389,11 @@ class AlphaBetaPlayer(IsolationPlayer):
             v = min(v, self.max_value(game.forecast_move(m), depth - 1, alpha, beta))
 
             # If possible escape the "for" loop
-            beta = min(beta, v)
-            if beta <= alpha:
+            if v <= alpha:
                 break
+
+            beta = min(beta, v)
+            
         return v
 
     def alphabeta(self, game, depth):
@@ -431,8 +435,9 @@ class AlphaBetaPlayer(IsolationPlayer):
                 best_score, best_move = v, move
 
                 # If possible escape the "for" loop
-                beta = min(beta, v)
-                if beta <= alpha:
+                if v <= alpha:
                     break
+
+                beta = min(beta, v)
 
         return best_move
