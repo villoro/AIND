@@ -337,8 +337,10 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Try to explore as deep as possible
         try:
-            for depth in range(self.search_depth):
+            depth = 1
+            while True:
                 best_move = self.alphabeta(game, depth)
+                depth += 1
                 
         except SearchTimeout:
             pass
