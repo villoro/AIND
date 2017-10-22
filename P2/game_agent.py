@@ -368,9 +368,8 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             # If possible escape the "for" loop
             if v >= beta:
-                break
-
-            alpha = max(alpha, v)
+                return v
+            alpha = max(alpha, v) 
 
         return v
 
@@ -390,10 +389,9 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             # If possible escape the "for" loop
             if v <= alpha:
-                break
-
+                return v
             beta = min(beta, v)
-            
+
         return v
 
     def alphabeta(self, game, depth):
@@ -436,8 +434,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
                 # If possible escape the "for" loop
                 if v <= alpha:
-                    break
-
+                    return best_move
                 beta = min(beta, v)
 
         return best_move
