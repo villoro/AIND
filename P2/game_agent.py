@@ -210,83 +210,73 @@ class MinimaxPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # No legal move scape
-        if len(game.get_legal_moves()) == 0:
-            return (-1, -1)
+        best_move = (-1, -1)
 
-        if game.move_count > 1:
-            move = (-1, -1)
+        # Try to explore as deep as possible
+        try:
+            return self.minimax(game, self.search_depth)
+        except SearchTimeout:
+            pass
 
-            # Try to explore as deep as possible
-            try:
-                for depth in range(self.search_depth):
-                    score, move = self.minimax(game, depth)
+        return best_move
 
-            except SearchTimeout:
-                pass
-                
-            # If move is possible return it (it is the best guess)
-            if move in game.get_legal_moves():
-                return move
+    def terminal_test(self, game):
+        """ Return True if the game is over for the active player and False otherwise."""
+        if self.time_left() < self.TIMER_THRESHOLD:
+             raise SearchTimeout()
 
-        # First move is adviced to be in the center
-        cente_position = tuple(int(x/2) for x in [game.width, game.height])
+        return len(game.get_legal_moves()) == 0
 
-        if game.move_count == 0:
-            return cente_position
+    def max_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
 
-        # If oponent is not in center try to go there
-        elif game.move_count == 1:
-            if cente_position in game.get_legal_moves():
-                return cente_position
+        if self.terminal_test(game):
+            return -1
 
-            return (int(game.width/2), int(game.height/2) + 1)
+        if depth <= 0:
+            return self.score(game, self)
 
-        # In case there is some error return a valid move
-        return game.get_legal_moves()[0]
+        v = float("-inf")
+        for move in game.get_legal_moves():
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1))
+        return v
 
+    def min_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
 
-    def minimax(self, game, depth, maximize=True):
-        """Implement depth-limited minimax search algorithm as described in
-        the lectures.
+        if self.terminal_test(game):
+            return 1
 
-        This should be a modified version of MINIMAX-DECISION in the AIMA text.
-        https://github.com/aimacode/aima-pseudocode/blob/master/md/Minimax-Decision.md
+        if depth <= 0:
+            return self.score(game, self)
 
-        **********************************************************************
-            You MAY add additional methods to this class, or define helper
-                 functions to implement the required functionality.
-        **********************************************************************
+        v = float("inf")
+        for m in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(m), depth - 1))
+        return v
 
-        Parameters
-        ----------
-        game : isolation.Board
-            An instance of the Isolation game `Board` class representing the
-            current game state
+    def minimax(self, game, depth):
+        """
+            Parameters
+            ----------
+            game : isolation.Board
+                An instance of the Isolation game `Board` class representing the
+                current game state
 
-        depth : int
-            Depth is an integer representing the maximum number of plies to
-            search in the game tree before aborting
+            depth : int
+                Depth is an integer representing the maximum number of plies to
+                search in the game tree before aborting
 
-        Returns
-        -------
-        float
-            The score
+            Returns
+            -------
+            float
+                The score
 
-        (int, int)
-            The board coordinates of the best move found in the current search;
-            (-1, -1) if there are no legal moves
-
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project tests; you cannot call any other evaluation
-                function directly.
-
-            (2) If you use any helper functions (e.g., as shown in the AIMA
-                pseudocode) then you must copy the timer check into the top of
-                each helper function or else your agent will timeout during
-                testing.
+            (int, int)
+                The board coordinates of the best move found in the current search;
+                (-1, -1) if there are no legal moves
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
@@ -295,35 +285,22 @@ class MinimaxPlayer(IsolationPlayer):
         if depth == 0:
             return self.score(game, self), game.get_player_location(self)
 
-        # Early exit when no legal moves
-        if len(game.get_legal_moves()) == 0:
-            return self.score(game, self), (-1, -1)
-
+        best_score = float("-inf")
         best_move = (-1, -1)
 
-        if maximize:
-            best_score = float("-inf")
+        # Early exit when no legal moves
+        if self.terminal_test(game):
+            return best_move
 
-            # Explore all moves and if it is better store values
-            for move in game.get_legal_moves():  
-                v, _ = self.minimax(game.forecast_move(move), depth - 1, maximize=False)
+        for move in game.get_legal_moves():
+            v = self.min_value(game.forecast_move(move), depth)
+            if v > best_score:
+                best_score = v
+                best_move = move
 
-                if v > best_score:
-                    best_score, best_move = v, move
-
-        else:
-            best_score = float("inf")
-
-            # Explore all moves and if it is better store values
-            for move in game.get_legal_moves():  
-                v, _ = self.minimax(game.forecast_move(move), depth - 1)
-
-                if v < best_score:
-                    best_score, best_move = v, move
-
-        return best_score, best_move
+        return best_move  
                 
-        
+
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
@@ -362,42 +339,17 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # No legal move scape
-        if len(game.get_legal_moves()) == 0:
-            return (-1, -1) 
+        best_move = (-1, -1)
 
-        if game.move_count > 1:
-            # Initialize the best move so that this function returns something
-            # in case the search fails due to timeout
-            move = (-1, -1)
-
-            # Try to explore as deep as possible
-            try:
-                for depth in range(self.search_depth):
-                    score, move = self.alphabeta(game, depth)
-                    
-            except SearchTimeout:
-                pass
+        # Try to explore as deep as possible
+        try:
+            for depth in range(self.search_depth):
+                best_move = self.alphabeta(game, depth)
                 
-            # If move is possible return it (it is the best guess)
-            if move in game.get_legal_moves():
-                return move
+        except SearchTimeout:
+            pass
 
-        # First move is adviced to be in the center
-        cente_position = tuple(int(x/2) for x in [game.width, game.height])
-
-        if game.move_count == 0:
-            return cente_position
-
-        # If oponent is not in center try to go there
-        elif game.move_count == 1:
-            if cente_position in game.get_legal_moves():
-                return cente_position
-
-            return (int(game.width/2), int(game.height/2) + 1)
-
-        # When there is no possible move guessed try the first legal move
-        return game.get_legal_moves()[0]
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximize=True):
         """Implement depth-limited minimax search with alpha-beta pruning as
