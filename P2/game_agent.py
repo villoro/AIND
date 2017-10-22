@@ -281,22 +281,16 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # No depth no exploration
-        if depth == 0:
-            return self.score(game, self), game.get_player_location(self)
-
-        best_score = float("-inf")
-        best_move = (-1, -1)
+        best_score, best_move = float("-inf"), (-1, -1)
 
         # Early exit when no legal moves
         if self.terminal_test(game):
             return best_move
 
         for move in game.get_legal_moves():
-            v = self.min_value(game.forecast_move(move), depth)
+            v = self.min_value(game.forecast_move(move), depth - 1)
             if v > best_score:
-                best_score = v
-                best_move = move
+                best_score, best_move = v, move
 
         return best_move  
                 
@@ -358,10 +352,50 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         return len(game.get_legal_moves()) == 0
 
-    def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximize=True):
+    def max_value(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if self.terminal_test(game):
+            return -1
+
+        if depth <= 0:
+            return self.score(game, self)
+
+        v = float("-inf")
+        for move in game.get_legal_moves():
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
+
+            # If possible escape the "for" loop
+            alpha = max(alpha, v)
+            if beta <= alpha:
+                break
+        return v
+
+    def min_value(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if self.terminal_test(game):
+            return 1
+
+        if depth <= 0:
+            return self.score(game, self)
+
+        v = float("inf")
+        for m in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(m), depth - 1, alpha, beta))
+
+            # If possible escape the "for" loop
+            beta = min(beta, v)
+            if beta <= alpha:
+                break
+        return v
+
+    def alphabeta(self, game, depth):
         """Implement depth-limited minimax search with alpha-beta pruning as
             described in the lectures.
-            
+
             Parameters
             ----------
             game : isolation.Board
@@ -388,48 +422,17 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # No depth no exploration
-        if depth == 0:
-            return self.score(game, self), game.get_player_location(self)
+        best_score, best_move = float("-inf"), (-1, -1)
+        alpha, beta = float("-inf"), float("inf")
 
-        # Early exit when no legal moves
-        if len(game.get_legal_moves()) == 0:
-            return self.score(game, self), (-1, -1)
-
-        best_move = (-1, -1)
-
-        if maximize:
-            best_score = float("-inf")
-
-            # Explore all moves and if it is better store values
-            for move in game.get_legal_moves():
-                n_game = game.forecast_move(move)
-                v, _ = self.alphabeta(n_game, depth - 1, alpha, beta, maximize=False)
-
-                if v > best_score:
-                    best_score, best_move = v, move
-
-                # If possible escape the "for" loop
-                alpha = max(alpha, v)
-
-                if beta <= alpha:
-                    break
-
-        else:
-            best_score = float("inf")
-
-            # Explore all moves and if it is better store values
-            for move in game.get_legal_moves():
-                n_game = game.forecast_move(move)
-                v, _ = self.alphabeta(n_game, depth - 1, alpha, beta)
-
-                if v < best_score:
-                    best_score, best_move = v, move
+        for move in game.get_legal_moves():
+            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            if v > best_score:
+                best_score, best_move = v, move
 
                 # If possible escape the "for" loop
                 beta = min(beta, v)
-
                 if beta <= alpha:
                     break
 
-        return best_score, best_move
+        return best_move
