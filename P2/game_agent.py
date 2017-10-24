@@ -58,6 +58,55 @@ def custom_score(game, player):
                 (len(own_mov_in_corners) - len(opp_mov_in_corners))
 
 
+def custom_score_b(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+        of the given player.
+
+        This should be the best heuristic function for your project submission.
+
+        Note: this function should be called from within a Player instance as
+        `self.score()` -- you should not need to call this function directly.
+
+        Parameters
+        ----------
+        game : `isolation.Board`
+            An instance of `isolation.Board` encoding the current state of the
+            game (e.g., player locations and blocked cells).
+
+        player : object
+            A player instance in the current game (i.e., an object corresponding to
+            one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+        Returns
+        -------
+        float
+            The heuristic value of the current game state to the specified player.
+    """
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    game_percent = game.move_count/(game.width*game.height)
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    if game_percent < 0.5:
+        return  4*float(own_moves - opp_moves)
+
+    corners = [(0, 0), (0, (game.width - 1)),
+               ((game.height - 1), 0), ((game.height - 1), (game.width - 1))]
+
+    own_mov_in_corners = [m for m in game.get_legal_moves(player) if m in corners]
+    opp_mov_in_corners = [m for m in game.get_legal_moves(game.get_opponent(player)) if m in corners]
+
+    return 4*float(own_moves - opp_moves/2) + \
+                (len(own_mov_in_corners) - len(opp_mov_in_corners))
+
+
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
         of the given player.
@@ -100,6 +149,91 @@ def custom_score_2(game, player):
 
     return float(own_moves - opp_moves)
 
+def custom_score_2b(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+        of the given player.
+
+        Note: this function should be called from within a Player instance as
+        `self.score()` -- you should not need to call this function directly.
+
+        Parameters
+        ----------
+        game : `isolation.Board`
+            An instance of `isolation.Board` encoding the current state of the
+            game (e.g., player locations and blocked cells).
+
+        player : object
+            A player instance in the current game (i.e., an object corresponding to
+            one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+        Returns
+        -------
+        float
+            The heuristic value of the current game state to the specified player.
+    """
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    game_percent = game.move_count/(game.width*game.height)
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+
+    if game_percent < 0.5:
+        return 4*float(own_moves - opp_moves) + float((h - y)**2 + (w - x)**2)
+
+    return float(own_moves - opp_moves)
+
+
+def custom_score_2c(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+        of the given player.
+
+        Note: this function should be called from within a Player instance as
+        `self.score()` -- you should not need to call this function directly.
+
+        Parameters
+        ----------
+        game : `isolation.Board`
+            An instance of `isolation.Board` encoding the current state of the
+            game (e.g., player locations and blocked cells).
+
+        player : object
+            A player instance in the current game (i.e., an object corresponding to
+            one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+        Returns
+        -------
+        float
+            The heuristic value of the current game state to the specified player.
+    """
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    game_percent = game.move_count/(game.width*game.height)
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+
+    if game_percent < 0.5:
+        return 10*float(own_moves - opp_moves) + float((h - y)**2 + (w - x)**2)
+
+    return float(own_moves - opp_moves/2)
+
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -138,7 +272,47 @@ def custom_score_3(game, player):
     if game_percent < 0.75:
         return float(own_moves - opp_moves)
 
-    return float(own_moves - opp_moves/2)
+    return float(own_moves - opp_moves/4)
+
+
+def custom_score_3b(game, player):
+    """Calculate the heuristic value of a game state from the point of view
+        of the given player.
+
+        Note: this function should be called from within a Player instance as
+        `self.score()` -- you should not need to call this function directly.
+
+        Parameters
+        ----------
+        game : `isolation.Board`
+            An instance of `isolation.Board` encoding the current state of the
+            game (e.g., player locations and blocked cells).
+
+        player : object
+            A player instance in the current game (i.e., an object corresponding to
+            one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+        Returns
+        -------
+        float
+            The heuristic value of the current game state to the specified player.
+    """
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    game_percent = game.move_count/(game.width*game.height)
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    if game_percent < 0.75:
+        return float(own_moves - opp_moves)
+
+    return float(own_moves - opp_moves/4)
 
 
 class IsolationPlayer:

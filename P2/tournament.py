@@ -21,7 +21,8 @@ from isolation import Board
 from sample_players import (RandomPlayer, open_move_score,
                             improved_score, center_score)
 from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
-                        custom_score_2, custom_score_3)
+                        custom_score_2, custom_score_3,
+                        custom_score_b, custom_score_2b, custom_score_2c, custom_score_3b)
 
 NUM_MATCHES = 10  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
@@ -131,8 +132,12 @@ def main():
     test_agents = [
         Agent(AlphaBetaPlayer(score_fn=improved_score), "AB_Improved"),
         Agent(AlphaBetaPlayer(score_fn=custom_score), "AB_Custom"),
+        Agent(AlphaBetaPlayer(score_fn=custom_score_b), "AB_Custom_b"),
         Agent(AlphaBetaPlayer(score_fn=custom_score_2), "AB_Custom_2"),
-        Agent(AlphaBetaPlayer(score_fn=custom_score_3), "AB_Custom_3")
+        Agent(AlphaBetaPlayer(score_fn=custom_score_2b), "AB_Custom_2b"),
+        Agent(AlphaBetaPlayer(score_fn=custom_score_2c), "AB_Custom_2c"),
+        Agent(AlphaBetaPlayer(score_fn=custom_score_3), "AB_Custom_3"),
+        Agent(AlphaBetaPlayer(score_fn=custom_score_3b), "AB_Custom_3b"),
     ]
 
     # Define a collection of agents to compete against the test agents
