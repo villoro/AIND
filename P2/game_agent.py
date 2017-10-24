@@ -40,7 +40,7 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    game_percent_rem = 1 - game.move_count/(game.width*game.height)
+    game_percent = game.move_count/(game.width*game.height)
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
@@ -48,7 +48,7 @@ def custom_score(game, player):
     w, h = game.width / 2., game.height / 2.
     y, x = game.get_player_location(player)
 
-    if game_percent_rem < 0.75:
+    if game_percent < 0.75:
         return  10*float(own_moves - opp_moves) + float((h - y)**2 + (w - x)**2)
 
     corners = [(0, 0), (0, (game.width - 1)),
@@ -91,7 +91,7 @@ def custom_score_2(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    game_percent_rem = 1 - game.move_count/(game.width*game.height)
+    game_percent = game.move_count/(game.width*game.height)
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
@@ -99,7 +99,7 @@ def custom_score_2(game, player):
     w, h = game.width / 2., game.height / 2.
     y, x = game.get_player_location(player)
 
-    if game_percent_rem < 0.5:
+    if game_percent < 0.5:
         return 10*float(own_moves - opp_moves) + float((h - y)**2 + (w - x)**2)
 
     return float(own_moves - opp_moves)
@@ -134,12 +134,12 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    game_percent_rem = 1 - game.move_count/(game.width*game.height)
+    game_percent = game.move_count/(game.width*game.height)
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-    if game_percent_rem < 0.5:
+    if game_percent < 0.5:
         return float(own_moves - opp_moves)
 
     return float(own_moves - 0.5*opp_moves)
