@@ -312,7 +312,7 @@ def custom_score_3b(game, player):
     if game_percent < 0.75:
         return float(own_moves - opp_moves)
 
-    return float(own_moves - opp_moves/4)
+    return float(own_moves - opp_moves/2)
 
 
 class IsolationPlayer:
