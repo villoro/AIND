@@ -213,31 +213,22 @@ def air_cargo_p2() -> AirCargoProblem:
     # TODO implement Problem 2 definition
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
-    airports = ['JFK', 'SFO', 'ATL']
-    pos = [expr('At(C1, SFO)'),
-            expr('At(C2, JFK)'),
-            expr('At(C3, ATL)'),
-            expr('At(P1, SFO)'),
-            expr('At(P2, JFK)'),
-            expr('At(P3, ATL)'),
-            ]
-    neg = [expr('At(C2, SFO)'),
-            expr('At(C2, ATL)'),
-            expr('In(C2, P1)'),
-            expr('In(C2, P2)'),
-            expr('In(C2, P3)'),
-            expr('At(C1, JFK)'),
-            expr('At(C1, ATL)'),
-            expr('In(C1, P1)'),
-            expr('In(C1, P2)'),
-            expr('In(C2, P3)'),
-            expr('At(P1, JFK)'),
-            expr('At(P1, ATL)'),
-            expr('At(P2, SFO)'),
-            expr('At(P2, ATL)'),
-            expr('At(P3, JFK)'),
-            expr('At(P3, SFO)'),
-            ]
+    airports = ['SFO', 'JFK', 'ATL']
+    pos = [expr('At({}, {})'.format(c, a)) 
+                    for c, a in zip(cargos, airports)] + \
+            [expr('At({}, {})'.format(p, a)) 
+                                for p, a in zip(planes, airports)]
+    neg = [expr('At({}, {})'.format(c, a)) 
+                    for c in cargos 
+                    for a in airports 
+                    if cargos.index(c) != airports.index(a)] + \
+            [expr('At({}, {})'.format(p, a)) 
+                    for p in planes 
+                    for a in airports 
+                    if planes.index(p) != airports.index(a)] + \
+            [expr('In({}, {})'.format(c, p)) 
+                    for c in cargos 
+                    for p in planes]
     init = FluentState(pos, neg)
     goal = [expr('At(C1, JFK)'),
             expr('At(C2, SFO)'),
@@ -248,4 +239,28 @@ def air_cargo_p2() -> AirCargoProblem:
 
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
-    pass
+    cargos = ['C1', 'C2', 'C3', 'C4']
+    planes = ['P1', 'P2']
+    airports = ['SFO', 'JFK', 'ATL', 'ORD']
+    pos = [expr('At({}, {})'.format(c, a)) 
+                    for c, a in zip(cargos, airports)] + \
+            [expr('At({}, {})'.format(p, a)) 
+                                for p, a in zip(planes, airports)]
+    neg = [expr('At({}, {})'.format(c, a)) 
+                    for c in cargos 
+                    for a in airports 
+                    if cargos.index(c) != airports.index(a)] + \
+            [expr('At({}, {})'.format(p, a)) 
+                    for p in planes 
+                    for a in airports 
+                    if planes.index(p) != airports.index(a)] + \
+            [expr('In({}, {})'.format(c, p)) 
+                    for c in cargos 
+                    for p in planes]
+    init = FluentState(pos, neg)
+    goal = [expr('At(C1, JFK)'),
+            expr('At(C2, SFO)'),
+            expr('At(C3, JFK)'),
+            expr('At(C4, SFO)'),
+            ]
+    return AirCargoProblem(cargos, planes, airports, init, goal)
