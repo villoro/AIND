@@ -94,7 +94,7 @@ def main(p_choices, s_choices):
 
         for sname, s, h in searches:
             hstring = h if not h else " with {}".format(h)
-            print("\nSolving {} using {}{}...".format(pname, sname, hstring))
+            print("\nSolving {} using {}{}".format(pname, sname, hstring))
 
             _p = p()
             _h = None if not h else getattr(_p, h)
