@@ -170,8 +170,7 @@ class SelectorCV(ModelSelector):
                     for _, test_idx in kf.split(self.sequences):
 
                         # Get fold scores
-                        x_test, lengths_test = combine_sequences(test_idx, self.sequences)
-                        scores.append(model.score(x_test, lengths_test))
+                        scores.append(model.score(*combine_sequences(test_idx, self.sequences)))
 
                     # Compute mean of all fold scores
                     if len(scores) > 0:
