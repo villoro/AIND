@@ -87,6 +87,7 @@ class SelectorBIC(ModelSelector):
                 p = n_component*(n_component - 1) + 2*self.X.shape[1]*n_component
                 log_n = np.log(self.X.shape[0])
 
+                # get bic value
                 bic = -2*log_l + p*log_n
 
                 if bic > best_score:
@@ -123,6 +124,7 @@ class SelectorDIC(ModelSelector):
             try:
                 model = self.base_model(n_component)
 
+                # Get scores of other words
                 scores = [model.score(X, lengths) 
                                 for word, (X, lengths) in self.hwords.items()
                                 if word != self.this_word]
@@ -162,19 +164,21 @@ class SelectorCV(ModelSelector):
             try:
                 model = self.base_model(n_component)
 
-                # Fold and calculate model mean scores
-                scores = []
-                for _, test_idx in kf.split(self.sequences):
+                if len(self.sequences) > 2:
+                    # Fold and calculate model mean scores
+                    scores = []
+                    for _, test_idx in kf.split(self.sequences):
 
-                    # Get fold scores
-                    scores.append(model.score(combine_sequences(test_idx, self.sequences)))
+                        # Get fold scores
+                        x_test, lengths_test = combine_sequences(test_idx, self.sequences)
+                        scores.append(model.score(x_test, lengths_test))
 
-                # Compute mean of all fold scores
-                if len(scores) > 0:
-                    avg = np.mean(scores) 
+                    # Compute mean of all fold scores
+                    if len(scores) > 0:
+                        avg = np.mean(scores) 
 
-                    if avg > best_score:
-                        best_score, best_model = avg, model
+                        if avg > best_score:
+                            best_score, best_model = avg, model
 
             except Exception as e:
                 pass
