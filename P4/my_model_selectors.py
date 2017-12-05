@@ -34,7 +34,7 @@ class ModelSelector(object):
     def base_model(self, num_states):
         # with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        # warnings.filterwarnings("ignore", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
         try:
             hmm_model = GaussianHMM(n_components=num_states, covariance_type="diag", n_iter=1000,
                                     random_state=self.random_state, verbose=False).fit(self.X, self.lengths)
@@ -77,7 +77,30 @@ class SelectorBIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on BIC scores
-        raise NotImplementedError
+        best_score, best_model = -np.inf, None
+
+        for n_component in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                model = self.base_model(n_component)
+
+                log_l = model.score(self.X, self.lengths)
+                p = n_component*(n_component - 1) + 2*self.X.shape[1]*n_component
+                log_n = np.log(self.X.shape[0])
+
+                bic = -2*log_l + p*log_n
+
+                if bic > best_score:
+                    best_score, best_model = bic, model
+
+            except Exception as e:
+                pass
+
+        # Try to output the best model
+        if best_model is not None:
+            return best_model
+
+        # In case there is no model
+        return self.base_model(self.n_constant)
 
 
 class SelectorDIC(ModelSelector):
@@ -94,7 +117,30 @@ class SelectorDIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on DIC scores
-        raise NotImplementedError
+        best_score, best_model = -np.inf, None
+
+        for n_component in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                model = self.base_model(n_component)
+
+                scores = [model.score(X, lengths) 
+                                for word, (X, lengths) in self.hwords.items()
+                                if word != self.this_word]
+
+                dic = model.score(self.X, self.lengths) - np.mean(scores)
+
+                if dic > best_score:
+                    best_score, best_model = dic, model
+
+            except Exception as e:
+                pass
+
+        # Try to output the best model
+        if best_model is not None:
+            return best_model
+
+        # In case there is no model
+        return self.base_model(self.n_constant)
 
 
 class SelectorCV(ModelSelector):
@@ -103,7 +149,39 @@ class SelectorCV(ModelSelector):
     '''
 
     def select(self):
+        N_SPLITS = 3
+
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection using CV
-        raise NotImplementedError
+        best_score, best_model = -np.inf, None
+
+        kf = KFold(n_splits=N_SPLITS, shuffle=False, random_state=None)
+
+        for n_component in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                model = self.base_model(n_component)
+
+                # Fold and calculate model mean scores
+                scores = []
+                for _, test_idx in kf.split(self.sequences):
+
+                    # Get fold scores
+                    scores.append(model.score(combine_sequences(test_idx, self.sequences)))
+
+                # Compute mean of all fold scores
+                if len(scores) > 0:
+                    avg = np.mean(scores) 
+
+                    if avg > best_score:
+                        best_score, best_model = avg, model
+
+            except Exception as e:
+                pass
+
+        # Try to output the best model
+        if best_model is not None:
+            return best_model
+
+        # In case there is no model
+        return self.base_model(self.n_constant)
