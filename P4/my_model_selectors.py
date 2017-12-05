@@ -117,7 +117,30 @@ class SelectorDIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on DIC scores
-        raise NotImplementedError
+        best_score, best_model = -np.inf, None
+
+        for n_component in range(self.min_n_components, self.max_n_components + 1):
+            try:
+                model = self.base_model(n_component)
+
+                scores = [model.score(X, lengths) 
+                                for word, (X, lengths) in self.hwords.items()
+                                if word != self.this_word]
+
+                dic = model.score(self.X, self.lengths) - np.mean(scores)
+
+                if dic > best_score:
+                    best_score, best_model = dic, model
+
+            except Exception as e:
+                pass
+
+        # Try to output the best model
+        if best_model is not None:
+            return best_model
+
+        # In case there is no model
+        return self.base_model(self.n_constant)
 
 
 class SelectorCV(ModelSelector):
@@ -147,10 +170,11 @@ class SelectorCV(ModelSelector):
                     scores.append(model.score(combine_sequences(test_idx, self.sequences)))
 
                 # Compute mean of all fold scores
-                avg = np.mean(scores) if len(scores) > 0 else float("-inf")
+                if len(scores) > 0:
+                    avg = np.mean(scores) 
 
-                if avg > best_score:
-                    best_score, best_model = avg, model
+                    if avg > best_score:
+                        best_score, best_model = avg, model
 
             except Exception as e:
                 pass
