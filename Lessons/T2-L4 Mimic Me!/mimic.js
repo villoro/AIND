@@ -3,6 +3,12 @@
 
 const SHOW_FEATURE_POINTS = true;
 
+var targetEmoji = null;
+var scoreCorrect = 0;
+var scoreTotal = 0;
+var timer = null;
+
+
 // --- Affectiva setup ---
 
 // The affdex SDK Needs to create video and canvas elements in the DOM
@@ -76,7 +82,7 @@ function onReset() {
   $("#logs").html("");  // clear out previous log
 
   // TODO(optional): You can restart the game as well
-  // <your code here>
+  resetGame()
 };
 
 // Add a callback to notify when camera access is allowed
@@ -135,7 +141,7 @@ detector.addEventListener("onImageResultsSuccess", function(faces, image, timest
     drawEmoji(canvas, image, faces[0]);
 
     // TODO: Call your function to run the game (define it first!)
-    // <your code here>
+    playGame(canvas, image, faces[0])
   }
 });
 
@@ -198,4 +204,42 @@ function drawEmoji(canvas, img, face) {
 // - Define an initialization/reset function, and call it from the "onInitializeSuccess" event handler above
 // - Define a game reset function (same as init?), and call it from the onReset() function above
 
-// <your code here>
+// Pick a random emoji and update score
+function randomEmoji() {
+  var emojiIndex = Math.floor(Math.random() * emojis.length)
+  var emoji = emojis[emojiIndex]
+  targetEmoji = emoji
+  setTargetEmoji(emoji)
+  scoreTotal += 1
+  setScore(scoreCorrect, scoreTotal)
+  resetTimer()
+}
+
+function playGame(canvas, image, face) {
+  if (targetEmoji == null) {
+    resetGame()
+  }
+
+  var emoji = toUnicode(face.emojis.dominantEmoji)
+
+  if (emoji == targetEmoji) {
+    // increment score
+    scoreCorrect += 1
+
+    // reset the timer and the emoji
+    randomEmoji()
+  }
+}
+
+function resetGame() {
+  randomEmoji()
+  scoreCorrect = 0
+  scoreTotal = 0
+  setScore(scoreCorrect, scoreTotal)
+}
+
+function resetTimer() {
+  clearTimeout(timer)
+  timer = null
+  timer = setTimeout(randomEmoji, 10000)
+}
