@@ -1,6 +1,8 @@
 // Mimic Me!
 // Fun game where you need to express emojis being displayed
 
+const SHOW_FEATURE_POINTS = true;
+
 // --- Affectiva setup ---
 
 // The affdex SDK Needs to create video and canvas elements in the DOM
@@ -147,7 +149,8 @@ function drawFeaturePoints(canvas, img, face) {
 
   // TODO: Set the stroke and/or fill style you want for each feature point marker
   // See: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#Fill_and_stroke_styles
-  // <your code here>
+  ctx.strokeStyle = "#FFEB3B" // yellow 500
+  ctx.fillStyle = "#FFEB3B" // yellow 500
   
   // Loop over each feature point in the face
   for (var id in face.featurePoints) {
@@ -155,7 +158,12 @@ function drawFeaturePoints(canvas, img, face) {
 
     // TODO: Draw feature point, e.g. as a circle using ctx.arc()
     // See: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/arc
-    // <your code here>
+    if (SHOW_FEATURE_POINTS) {
+      ctx.beginPath();
+      ctx.arc(featurePoint.x, featurePoint.y, 1, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
   }
 }
 
@@ -165,14 +173,16 @@ function drawEmoji(canvas, img, face) {
   var ctx = canvas.getContext('2d');
 
   // TODO: Set the font and style you want for the emoji
-  // <your code here>
+  ctx.font = '48px san-serif'
 
-  ctx.fillText('Hello world', 50, 100);
   
   // TODO: Draw it using ctx.strokeText() or fillText()
   // See: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillText
   // TIP: Pick a particular feature point as an anchor so that the emoji sticks to your face
-  // <your code here>
+  //ctx.fillText('Hello world', 50, 100);
+  const anchor = face.featurePoints[10]
+  ctx.fillText(face.emojis.dominantEmoji, anchor.x, anchor.y)
+
 }
 
 // TODO: Define any variables and functions to implement the Mimic Me! game mechanics
