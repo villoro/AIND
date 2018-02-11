@@ -1,2 +1,12 @@
-my-ssl-cert.pem
-.DS_Store
+sublime.sublime-project
+sublime.sublime-workspace
+/Data
+/data
+/Graph
+/graph
+/Results
+/results
+/Temp
+*.pyc
+__pycache__
+/.ipynb_checkpoints
