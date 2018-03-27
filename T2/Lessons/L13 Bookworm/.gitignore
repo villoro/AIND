@@ -11,3 +11,4 @@ sublime.sublime-workspace
 __pycache__
 /.ipynb_checkpoints
 /images
+service-credentials.json
