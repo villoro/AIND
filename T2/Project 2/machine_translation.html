@@ -12791,7 +12791,7 @@ la est est parfois en en et il il est est en en &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">model_final</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">output_sequence_length</span><span class="p">,</span> <span class="n">english_vocab_size</span><span class="p">,</span> <span class="n">french_vocab_size</span><span class="p">):</span>
@@ -12804,10 +12804,10 @@ la est est parfois en en et il il est est en en &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&
 <span class="sd">    :return: Keras model built, but not trained</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># NN Parameters</span>
-    <span class="n">gru_size</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">gru_size</span> <span class="o">=</span> <span class="mi">256</span>
     <span class="n">dropout</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.1</span>
-    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.005</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.008</span>
 
     <span class="c1"># NN Architecture</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
@@ -12868,7 +12868,7 @@ la est est parfois en en et il il est est en en &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">final_predictions</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_tk</span><span class="p">,</span> <span class="n">y_tk</span><span class="p">):</span>
@@ -12924,45 +12924,45 @@ la est est parfois en en et il il est est en en &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Train on 110288 samples, validate on 27573 samples
 Epoch 1/20
-110288/110288 [==============================] - 41s 371us/step - loss: 1.9009 - acc: 0.5423 - val_loss: nan - val_acc: 0.4022
+110288/110288 [==============================] - 43s 393us/step - loss: 1.8073 - acc: 0.5558 - val_loss: nan - val_acc: 0.5247
 Epoch 2/20
-110288/110288 [==============================] - 35s 321us/step - loss: 1.0991 - acc: 0.6855 - val_loss: nan - val_acc: 0.5252
+110288/110288 [==============================] - 37s 338us/step - loss: 0.9820 - acc: 0.7103 - val_loss: nan - val_acc: 0.7265
 Epoch 3/20
-110288/110288 [==============================] - 35s 321us/step - loss: 0.7893 - acc: 0.7565 - val_loss: nan - val_acc: 0.6957
+110288/110288 [==============================] - 38s 348us/step - loss: 0.6520 - acc: 0.7909 - val_loss: nan - val_acc: 0.8047
 Epoch 4/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.5718 - acc: 0.8177 - val_loss: nan - val_acc: 0.8282
+110288/110288 [==============================] - 39s 356us/step - loss: 0.4301 - acc: 0.8590 - val_loss: nan - val_acc: 0.8582
 Epoch 5/20
-110288/110288 [==============================] - 36s 322us/step - loss: 0.4338 - acc: 0.8603 - val_loss: nan - val_acc: 0.8500
+110288/110288 [==============================] - 39s 353us/step - loss: 0.3123 - acc: 0.8975 - val_loss: nan - val_acc: 0.9079
 Epoch 6/20
-110288/110288 [==============================] - 35s 321us/step - loss: 0.3671 - acc: 0.8805 - val_loss: nan - val_acc: 0.8970
+110288/110288 [==============================] - 39s 357us/step - loss: 0.2480 - acc: 0.9192 - val_loss: nan - val_acc: 0.9248
 Epoch 7/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.3051 - acc: 0.9011 - val_loss: nan - val_acc: 0.8943
+110288/110288 [==============================] - 39s 352us/step - loss: 0.2056 - acc: 0.9338 - val_loss: nan - val_acc: 0.9398
 Epoch 8/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.2674 - acc: 0.9136 - val_loss: nan - val_acc: 0.9211
+110288/110288 [==============================] - 39s 357us/step - loss: 0.1719 - acc: 0.9456 - val_loss: nan - val_acc: 0.9489
 Epoch 9/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.2426 - acc: 0.9218 - val_loss: nan - val_acc: 0.9337
+110288/110288 [==============================] - 38s 348us/step - loss: 0.1501 - acc: 0.9533 - val_loss: nan - val_acc: 0.9508
 Epoch 10/20
-110288/110288 [==============================] - 36s 322us/step - loss: 0.2097 - acc: 0.9331 - val_loss: nan - val_acc: 0.9405
+110288/110288 [==============================] - 39s 356us/step - loss: 0.1412 - acc: 0.9561 - val_loss: nan - val_acc: 0.9380
 Epoch 11/20
-110288/110288 [==============================] - 36s 323us/step - loss: 0.1919 - acc: 0.9393 - val_loss: nan - val_acc: 0.9429
+110288/110288 [==============================] - 38s 344us/step - loss: 0.1295 - acc: 0.9603 - val_loss: nan - val_acc: 0.9653
 Epoch 12/20
-110288/110288 [==============================] - 36s 322us/step - loss: 0.1743 - acc: 0.9451 - val_loss: nan - val_acc: 0.9497
+110288/110288 [==============================] - 38s 341us/step - loss: 0.1016 - acc: 0.9691 - val_loss: nan - val_acc: 0.9674
 Epoch 13/20
-110288/110288 [==============================] - 35s 321us/step - loss: 0.1607 - acc: 0.9492 - val_loss: nan - val_acc: 0.9544
+110288/110288 [==============================] - 38s 341us/step - loss: 0.0922 - acc: 0.9722 - val_loss: nan - val_acc: 0.9693
 Epoch 14/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.1518 - acc: 0.9520 - val_loss: nan - val_acc: 0.9483
+110288/110288 [==============================] - 38s 343us/step - loss: 0.0884 - acc: 0.9734 - val_loss: nan - val_acc: 0.9712
 Epoch 15/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.1392 - acc: 0.9560 - val_loss: nan - val_acc: 0.9585
+110288/110288 [==============================] - 38s 343us/step - loss: 0.0804 - acc: 0.9758 - val_loss: nan - val_acc: 0.9709
 Epoch 16/20
-110288/110288 [==============================] - 35s 321us/step - loss: 0.2303 - acc: 0.9274 - val_loss: nan - val_acc: 0.8369
+110288/110288 [==============================] - 38s 342us/step - loss: 0.0780 - acc: 0.9766 - val_loss: nan - val_acc: 0.9721
 Epoch 17/20
-110288/110288 [==============================] - 35s 322us/step - loss: 0.1552 - acc: 0.9523 - val_loss: nan - val_acc: 0.9597
+110288/110288 [==============================] - 38s 344us/step - loss: 0.0726 - acc: 0.9783 - val_loss: nan - val_acc: 0.9751
 Epoch 18/20
-110288/110288 [==============================] - 36s 325us/step - loss: 0.1230 - acc: 0.9618 - val_loss: nan - val_acc: 0.9635
+110288/110288 [==============================] - 38s 348us/step - loss: 0.0674 - acc: 0.9799 - val_loss: nan - val_acc: 0.9752
 Epoch 19/20
-110288/110288 [==============================] - 36s 325us/step - loss: 0.1124 - acc: 0.9649 - val_loss: nan - val_acc: 0.9656
+110288/110288 [==============================] - 38s 346us/step - loss: 0.0634 - acc: 0.9811 - val_loss: nan - val_acc: 0.9752
 Epoch 20/20
-110288/110288 [==============================] - 36s 331us/step - loss: 0.1063 - acc: 0.9668 - val_loss: nan - val_acc: 0.9664
+110288/110288 [==============================] - 38s 346us/step - loss: 0.0653 - acc: 0.9807 - val_loss: nan - val_acc: 0.9738
 new jersey est parfois calme pendant l&#39; automne et il est neigeux en avril &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt;
 Sample 1:
 il a vu un vieux camion jaune &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt; &lt;PAD&gt;
@@ -12983,7 +12983,7 @@ new jersey est parfois calme pendant l&#39; automne et il est neigeux en avril &
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <div class="alert alert-success">
-  <strong>Good results!</strong> Around 90-93% accuracy I think is remarcable. And looking at the samples it does a good job.
+  <strong>Great results!</strong> Around 97% accuracy I think is remarcable and sample translations are perfect! :)
 </div>
 </div>
 </div>
