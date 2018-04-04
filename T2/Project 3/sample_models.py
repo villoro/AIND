@@ -1,7 +1,7 @@
 from keras import backend as K
 from keras.models import Model
 from keras.layers import (BatchNormalization, Conv1D, Dense, Input, 
-    TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LSTM)
+    TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LSTM, LeakyReLU, Dropout)
 
 def simple_rnn_model(input_dim, output_dim=29):
     """ Build a recurrent network for speech 
@@ -98,9 +98,16 @@ def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
     # TODO: Add recurrent layers, each with batch normalization
-    ...
+    rnn = input_data
+
+    for i in range(recur_layers):
+        rnn = GRU(units, return_sequences=True,
+                  implementation=2, name='rnn{}'.format(i))(rnn)
+        rnn = BatchNormalization(name='bn_rnn{}'.format(i))(rnn)
+
     # TODO: Add a TimeDistributed(Dense(output_dim)) layer
-    time_dense = ...
+    time_dense = TimeDistributed(Dense(output_dim))(rnn)
+
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
     # Specify the model
@@ -115,9 +122,10 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
     # TODO: Add bidirectional recurrent layer
-    bidir_rnn = ...
+    bidir_rnn = Bidirectional(GRU(units, return_sequences=True, implementation=2,
+                                  name='bidirectional'))(input_data)
     # TODO: Add a TimeDistributed(Dense(output_dim)) layer
-    time_dense = ...
+    time_dense = TimeDistributed(Dense(output_dim))(bidir_rnn)
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
     # Specify the model
@@ -126,18 +134,40 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
     print(model.summary())
     return model
 
-def final_model():
+def final_model(input_dim, filters, kernel_size, conv_stride,
+                conv_border_mode, units, recur_layers, td_layers,
+                dropout, alpha=0.1, output_dim=29):
     """ Build a deep network for speech 
     """
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
     # TODO: Specify the layers in your network
-    ...
+    rnn = Conv1D(filters, kernel_size, 
+                     strides=conv_stride, 
+                     padding=conv_border_mode,
+                     name='conv1d')(input_data)
+    rnn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(rnn)
+    rnn = BatchNormalization(name='bn_conv1d')(rnn)
+
+    rnn = input_data
+
+    for i in range(recur_layers):
+        rnn = Bidirectional(GRU(units, return_sequences=True,
+                                implementation=2, name='bidirectional{}'.format(i)))(rnn)
+        rnn = BatchNormalization(name='bn_rnn{}'.format(i))(rnn)
+
+    for i in range(td_layers):
+        rnn = TimeDistributed(Dense(output_dim, name="td{}".format(i)))(rnn)
+        rnn = LeakyReLU(alpha=alpha, name="leaky_td{}".format(i))(rnn)
+        rnn = BatchNormalization(name='bn_td{}'.format(i))(rnn)
+
+    rnn = Dropout(dropout)(rnn)
+
     # TODO: Add softmax activation layer
-    y_pred = ...
+    y_pred = Activation('softmax', name='softmax')(rnn)
     # Specify the model
     model = Model(inputs=input_data, outputs=y_pred)
     # TODO: Specify model.output_length
-    model.output_length = ...
+    model.output_length = lambda x: x
     print(model.summary())
     return model
