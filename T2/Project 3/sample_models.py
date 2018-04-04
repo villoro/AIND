@@ -32,6 +32,17 @@ def cnn_output_length(input_length, filter_size, border_mode, stride, dilation=1
     return (output_length + stride - 1) // stride
 
 
+def create_model(input_data, y_pred, output_length=lambda x: x):
+    """
+        Creates the keras model
+    """
+
+    model = Model(inputs=input_data, outputs=y_pred)
+    model.output_length = output_length
+    print(model.summary())
+    return model
+
+
 def simple_rnn_model(input_dim, output_dim=29):
     """
         MODEL 0: Simple RNN model with only one recurrent layer
@@ -50,12 +61,7 @@ def simple_rnn_model(input_dim, output_dim=29):
 
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(simp_rnn)
-
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: x
-    print(model.summary())
-    return model
+    return create_model(input_data, y_pred)
 
 
 def rnn_model(input_dim, units, activation, output_dim=29):
@@ -84,12 +90,7 @@ def rnn_model(input_dim, units, activation, output_dim=29):
 
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
-
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: x
-    print(model.summary())
-    return model
+    return create_model(input_data, y_pred)
 
 
 def cnn_rnn_model(input_dim, filters, kernel_size, stride,
@@ -130,11 +131,8 @@ def cnn_rnn_model(input_dim, filters, kernel_size, stride,
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
 
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: cnn_output_length(x, kernel_size, border_mode, stride)
-    print(model.summary())
-    return model
+    output_length = lambda x: cnn_output_length(x, kernel_size, border_mode, stride)
+    return create_model(input_data, y_pred, output_length)
 
 
 def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
@@ -163,12 +161,7 @@ def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
 
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
-
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: x
-    print(model.summary())
-    return model
+    return create_model(input_data, y_pred)
 
 
 def bidirectional_rnn_model(input_dim, units, output_dim=29):
@@ -194,12 +187,7 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
 
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
-
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: x
-    print(model.summary())
-    return model
+    return create_model(input_data, y_pred)
 
 
 def final_model(input_dim, filters, kernel_size, stride,
@@ -223,6 +211,7 @@ def final_model(input_dim, filters, kernel_size, stride,
             alpha:          left slope for the leaky relu
             output_dim:     number of possible outputs
     """
+
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
 
@@ -250,8 +239,5 @@ def final_model(input_dim, filters, kernel_size, stride,
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(rnn)
 
-    # Specify the model
-    model = Model(inputs=input_data, outputs=y_pred)
-    model.output_length = lambda x: x
-    print(model.summary())
-    return model
+    output_length = lambda x: cnn_output_length(x, kernel_size, border_mode, stride)
+    return create_model(input_data, y_pred, output_length)
