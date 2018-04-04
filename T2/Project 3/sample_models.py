@@ -3,8 +3,11 @@
 """
 
 from keras.models import Model
-from keras.layers import (BatchNormalization, Conv1D, Dense, Input, 
-    TimeDistributed, Activation, Bidirectional, SimpleRNN, GRU, LeakyReLU, Dropout)
+from keras.layers import (
+    Input, BatchNormalization, Activation,
+    Conv1D, LeakyReLU, Dropout,
+    Bidirectional, SimpleRNN, GRU, TimeDistributed, Dense
+)
 
 
 def cnn_output_length(input_length, filter_size, border_mode, stride, dilation=1):
@@ -30,7 +33,7 @@ def cnn_output_length(input_length, filter_size, border_mode, stride, dilation=1
 
 
 def simple_rnn_model(input_dim, output_dim=29):
-    """ 
+    """
         MODEL 0: Simple RNN model with only one recurrent layer
 
         Args:
@@ -56,7 +59,7 @@ def simple_rnn_model(input_dim, output_dim=29):
 
 
 def rnn_model(input_dim, units, activation, output_dim=29):
-    """ 
+    """
         MODEL 1: RNN with batch_norm and a time distributed layer
 
         Args:
@@ -73,7 +76,7 @@ def rnn_model(input_dim, units, activation, output_dim=29):
     simp_rnn = GRU(units, activation=activation,
                    return_sequences=True, implementation=2, name='rnn')(input_data)
 
-    # Add batch normalization 
+    # Add batch normalization
     bn_rnn = BatchNormalization(name='bn_rnn')(simp_rnn)
 
     # Add a TimeDistributed(Dense(output_dim)) layer
@@ -91,7 +94,7 @@ def rnn_model(input_dim, units, activation, output_dim=29):
 
 def cnn_rnn_model(input_dim, filters, kernel_size, stride,
                   border_mode, units, output_dim=29):
-    """ 
+    """
         MODEL 2: NN with convolutional and recurrent layers
 
         Args:
@@ -108,11 +111,8 @@ def cnn_rnn_model(input_dim, filters, kernel_size, stride,
     input_data = Input(name='the_input', shape=(None, input_dim))
 
     # Add convolutional layer
-    conv_1d = Conv1D(filters, kernel_size, 
-                     strides=stride, 
-                     padding=border_mode,
-                     activation='relu',
-                     name='conv1d')(input_data)
+    conv_1d = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
+                     activation='relu', name='conv1d')(input_data)
 
     # Add batch normalization
     bn_cnn = BatchNormalization(name='bn_conv_1d')(conv_1d)
@@ -121,10 +121,10 @@ def cnn_rnn_model(input_dim, filters, kernel_size, stride,
     simp_rnn = SimpleRNN(units, activation='relu',
                          return_sequences=True, name='rnn')(bn_cnn)
 
-    # TODO: Add batch normalization
+    # Add batch normalization
     bn_rnn = BatchNormalization(name='bn_rnn')(simp_rnn)
 
-    # TODO: Add a TimeDistributed(Dense(output_dim)) layer
+    # Add a TimeDistributed(Dense(output_dim)) layer
     time_dense = TimeDistributed(Dense(output_dim))(bn_rnn)
 
     # Add softmax activation layer
@@ -138,7 +138,7 @@ def cnn_rnn_model(input_dim, filters, kernel_size, stride,
 
 
 def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
-    """ 
+    """
         MODEL 3: NN that has 'N' recurrent layers with batch_norm and a time distributed layer
 
         Args:
@@ -170,8 +170,9 @@ def deep_rnn_model(input_dim, units, recur_layers, output_dim=29):
     print(model.summary())
     return model
 
+
 def bidirectional_rnn_model(input_dim, units, output_dim=29):
-    """ 
+    """
         MODEL 4: bidirectional RNN with batch_norm and a time distributed layer
 
         Args:
@@ -204,7 +205,7 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
 def final_model(input_dim, filters, kernel_size, stride,
                 border_mode, units, recur_layers, td_layers,
                 dropout, alpha=0.1, output_dim=29):
-    """ 
+    """
         MODEL 5+: NN that has 1 convolutional layer followed by some recurrent layers.
         Each recurrent layer has batch_norm.
         Then it has some time_distributed layers with batch_norm and leaky_relu as activation.
@@ -226,10 +227,8 @@ def final_model(input_dim, filters, kernel_size, stride,
     input_data = Input(name='the_input', shape=(None, input_dim))
 
     # Convolution layer
-    rnn = Conv1D(filters, kernel_size, 
-                     strides=stride, 
-                     padding=border_mode,
-                     name='conv1d')(input_data)
+    rnn = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
+                 name='conv1d')(input_data)
     rnn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(rnn)
     rnn = BatchNormalization(name='bn_conv1d')(rnn)
 
