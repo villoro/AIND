@@ -216,28 +216,27 @@ def final_model(input_dim, filters, kernel_size, stride,
     input_data = Input(name='the_input', shape=(None, input_dim))
 
     # Convolution layer
-    rnn = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
+    nn = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
                  name='conv1d')(input_data)
-    rnn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(rnn)
-    rnn = BatchNormalization(name='bn_conv1d')(rnn)
+    nn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(nn)
+    nn = BatchNormalization(name='bn_conv1d')(nn)
 
     # Recurrent layers
-    rnn = input_data
     for i in range(recur_layers):
-        rnn = Bidirectional(GRU(units, return_sequences=True,
-                                implementation=2, name='rnn_{}'.format(i)))(rnn)
-        rnn = BatchNormalization(name='bn_rnn_{}'.format(i))(rnn)
+        nn = Bidirectional(GRU(units, return_sequences=True, implementation=2),
+                           name='rnn_{}'.format(i))(nn)
+        nn = BatchNormalization(name='bn_rnn_{}'.format(i))(nn)
 
     # Time distributed layers
     for i in range(td_layers):
-        rnn = TimeDistributed(Dense(output_dim, name="td_{}".format(i)))(rnn)
-        rnn = LeakyReLU(alpha=alpha, name="leaky_td_{}".format(i))(rnn)
-        rnn = BatchNormalization(name='bn_td_{}'.format(i))(rnn)
+        nn = TimeDistributed(Dense(output_dim, name="td_{}".format(i)))(nn)
+        nn = LeakyReLU(alpha=alpha, name="leaky_td_{}".format(i))(nn)
+        nn = BatchNormalization(name='bn_td_{}'.format(i))(nn)
 
-    rnn = Dropout(dropout)(rnn)
+    nn = Dropout(dropout)(nn)
 
     # Add softmax activation layer
-    y_pred = Activation('softmax', name='softmax')(rnn)
+    y_pred = Activation('softmax', name='softmax')(nn)
 
     output_length = lambda x: cnn_output_length(x, kernel_size, border_mode, stride)
     return create_model(input_data, y_pred, output_length)
