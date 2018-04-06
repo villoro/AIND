@@ -190,9 +190,9 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
     return create_model(input_data, y_pred)
 
 
-def final_model(input_dim, filters, kernel_size, stride,
-                border_mode, units, recur_layers, td_layers,
-                dropout, alpha=0.1, output_dim=29):
+def final_model(input_dim, units, recur_layers, td_layers, dropout,
+                filters=None, kernel_size=11, stride=2, border_mode="valid",
+                alpha=0.1, output_dim=29):
     """
         MODEL 5+: NN that has 1 convolutional layer followed by some recurrent layers.
         Each recurrent layer has batch_norm.
@@ -212,31 +212,39 @@ def final_model(input_dim, filters, kernel_size, stride,
             output_dim:     number of possible outputs
     """
 
-    # Main acoustic input
+        # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
 
+    nn = input_data
+
     # Convolution layer
-    nn = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
-                 name='conv1d')(input_data)
-    nn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(nn)
-    nn = BatchNormalization(name='bn_conv1d')(nn)
+    if filters is not None:
+        nn = Conv1D(filters, kernel_size, strides=stride, padding=border_mode,
+                    name='conv1d')(input_data)
+        nn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(nn)
+        nn = BatchNormalization(name='bn_conv1d')(nn)
+        nn = Dropout(dropout)(nn)
 
     # Recurrent layers
     for i in range(recur_layers):
         nn = Bidirectional(GRU(units, return_sequences=True, implementation=2),
                            name='rnn_{}'.format(i))(nn)
         nn = BatchNormalization(name='bn_rnn_{}'.format(i))(nn)
+        nn = Dropout(dropout)(nn)
 
     # Time distributed layers
-    for i in range(td_layers):
+    for i in range(td_layers - 1):
         nn = TimeDistributed(Dense(output_dim, name="td_{}".format(i)))(nn)
-        nn = LeakyReLU(alpha=alpha, name="leaky_td_{}".format(i))(nn)
-        nn = BatchNormalization(name='bn_td_{}'.format(i))(nn)
 
-    nn = Dropout(dropout)(nn)
+        if i + 1 < td_layers:
+            nn = LeakyReLU(alpha=alpha, name="leaky_td_{}".format(i))(nn)
+            nn = BatchNormalization(name='bn_td_{}'.format(i))(nn)
 
     # Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(nn)
+
+    if filters is None:
+        return create_model(input_data, y_pred)
 
     output_length = lambda x: cnn_output_length(x, kernel_size, border_mode, stride)
     return create_model(input_data, y_pred, output_length)
