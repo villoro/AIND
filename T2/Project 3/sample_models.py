@@ -223,18 +223,18 @@ def final_model(input_dim, units, recur_layers, td_layers, dropout,
                     name='conv1d')(input_data)
         nn = LeakyReLU(alpha=alpha, name="leaky_conv1d")(nn)
         nn = BatchNormalization(name='bn_conv1d')(nn)
-        nn = Dropout(dropout)(nn)
+        nn = Dropout(dropout, name='drop_conv1d')(nn)
 
     # Recurrent layers
     for i in range(recur_layers):
         nn = Bidirectional(GRU(units, return_sequences=True, implementation=2),
                            name='rnn_{}'.format(i))(nn)
         nn = BatchNormalization(name='bn_rnn_{}'.format(i))(nn)
-        nn = Dropout(dropout)(nn)
+        nn = Dropout(dropout, name='drop_rnn_{}'.format(i))(nn)
 
     # Time distributed layers
-    for i in range(td_layers - 1):
-        nn = TimeDistributed(Dense(output_dim, name="td_{}".format(i)))(nn)
+    for i in range(td_layers):
+        nn = TimeDistributed(Dense(output_dim), name="td_{}".format(i))(nn)
 
         if i + 1 < td_layers:
             nn = LeakyReLU(alpha=alpha, name="leaky_td_{}".format(i))(nn)
