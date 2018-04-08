@@ -10,3 +10,4 @@ sublime.sublime-workspace
 *.pyc
 __pycache__
 /.ipynb_checkpoints
+my-ssl-cert.pem
